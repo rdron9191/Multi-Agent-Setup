@@ -1,7 +1,7 @@
 # OpenCode Multi-Agent Workflow
 ### Local AI Dev Team — Ollama + Security Reviewer + Serena MCP
 
-> 📺 **Video Tutorial (this version):** `<!-- ADD YOUR VIDEO LINK HERE -->`
+> 📺 **Video Tutorial (this version):** `https://youtu.be/s2rrrGwo448`
 > 📺 **Video Tutorial (v1 — original Copilot setup):** `https://youtu.be/kE6x7xKy4lM?si=_dCDpZVN_vOZZSzL`
 
 A practical multi-agent workflow for [OpenCode](https://opencode.ai) that runs a full local AI dev team using **Ollama** — no API key required, no code leaves your machine.
@@ -257,7 +257,7 @@ Update the workflow order in `AGENTS.md` and add the new agent name to the plann
 | Version | Video | Key additions |
 |---|---|---|
 | v1 | `https://youtu.be/kE6x7xKy4lM?si=_dCDpZVN_vOZZSzL` | Original workflow: planner, debater, implementor, reviewer, tester, linter, commit-message with GitHub Copilot |
-| v2 (this) | `<!-- ADD NEW VIDEO LINK -->` | Ollama local models, security reviewer, Serena MCP |
+| v2 (this) | `https://youtu.be/s2rrrGwo448` | Ollama local models, security reviewer, Serena MCP |
 
 ---
 
