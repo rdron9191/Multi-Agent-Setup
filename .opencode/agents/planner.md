@@ -16,6 +16,7 @@ permission:
     "implementor": allow
     "reviewer": allow
     "tester": allow
+    "security-reviewer": allow
     "linter": allow
     "commit-message": allow
 ---

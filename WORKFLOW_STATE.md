@@ -30,3 +30,11 @@
 ## Test Results
 -
 
+## Security Findings
+-
+
+## Lint Results
+-
+
+## Commit Message Draft
+-

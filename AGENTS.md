@@ -19,8 +19,9 @@ Workflow order:
 4. Implementor makes the change
 5. Reviewer reviews the result
 6. Tester runs relevant tests
-7. Linter checks formatting/linting
-8. Commit-message writes the final commit message
+7. security-reviewer – performs security code review
+8. Linter checks formatting/linting
+9. Commit-message writes the final commit message
 
 Writing rules:
 - Keep entries short and structured

@@ -305,6 +305,11 @@ Relevant docs:
 
 ---
 
+## Watch on YouTube
+https://youtu.be/kE6x7xKy4lM?si=_dCDpZVN_vOZZSzL
+
+---
+
 ## License
 
-Add your preferred license here.
+MIT — feel free to copy, adapt, and share.
