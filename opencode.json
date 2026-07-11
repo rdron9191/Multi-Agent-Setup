@@ -15,22 +15,31 @@
         "baseURL": "http://localhost:11434/v1"
       },
       "models": {
-        "kimi-k2.6:cloud": {
+        "kimi-k2.5:cloud": {
           "_launch": true,
           "limit": {
             "context": 262144,
             "output": 262144
           },
-          "name": "kimi-k2.6:cloud"
+          "name": "kimi-k2.5:cloud"
         },
-        "gemma4:e4b": {
-          "name": "gemma4:e4b"
+        "gemma4:latest": {
+          "name": "gemma4:latest"
         },
-        "gemma4:26b": {
-          "name": "gemma4:26b"
+        "gemma4:31b": {
+          "name": "gemma4:31b"
         },
-        "qwen3.6:27b": {
-          "name": "qwen3.6:27b"
+        "deepseek-r1:8b": {
+          "name": "deepseek-r1:8b"
+        },
+        "qwen3:8b": {
+          "name": "qwen3:8b"
+        },
+        "glm-4.7-flash:latest": {
+          "name": "glm-4.7-flash:latest"
+        },
+        "llama3:latest": {
+          "name": "llama3:latest"
         }
       }
     }

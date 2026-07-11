@@ -1,7 +1,7 @@
 ---
 description: Security expert that performs a focused security review of recent changes
 mode: subagent
-model: ollama/qwen3.6:27b
+model: ollama/gemma4:31b
 temperature: 0.05
 maxsteps: 6
 permission:
