@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "name": "global-disaster-watch",
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
