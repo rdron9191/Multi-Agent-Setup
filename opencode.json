@@ -15,6 +15,12 @@
         "baseURL": "http://localhost:11434/v1"
       },
       "models": {
+        "nemotron-3.5-lightning:latest": {
+          "name": "nemotron-3.5-lightning:latest"
+        },
+        "nemotron-3.5:latest": {
+          "name": "nemotron-3.5:latest"
+        },
         "kimi-k2.5:cloud": {
           "_launch": true,
           "limit": {
@@ -40,6 +46,18 @@
         },
         "llama3:latest": {
           "name": "llama3:latest"
+        }
+      }
+    },
+    "mlx": {
+      "name": "MLX Local Server",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:8080/v1"
+      },
+      "models": {
+        "nemotron-3.5-lightning:30b-mlx": {
+          "name": "mlx-community/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-4bit"
         }
       }
     }

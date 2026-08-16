@@ -36,25 +36,38 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
   ];
 
   return (
-    <header className="sticky top-0 z-40 bg-[#0b0f19]/90 backdrop-blur-md border-b border-slate-800/80 px-4 pt-3 pb-3">
-      <div className="flex items-center justify-between mb-3">
+    <header className="sticky top-0 z-40 bg-[#0b0f19]/90 backdrop-blur-xl border-b border-slate-800/80 px-4 pt-3 pb-2.5 shadow-lg">
+      <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center space-x-2.5">
-          <div className="relative">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center shadow-lg shadow-rose-600/20">
-              <ShieldAlert className="w-5 h-5 text-white" />
+          <div className="relative group shrink-0">
+            <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-rose-600/50 via-rose-500/30 to-amber-500/40 blur-md opacity-80"></div>
+            <div className="relative w-9 h-9 rounded-2xl bg-gradient-to-b from-[#1e293b]/95 via-[#0f172a]/95 to-[#0b0f19] p-[1px] border border-rose-400/30 shadow-2xl flex items-center justify-center">
+              <ShieldAlert className="w-5 h-5 text-rose-500 filter drop-shadow-[0_0_6px_rgba(244,63,94,0.8)]" />
             </div>
-            <span className="absolute -top-1 -right-1 flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>
+            <span className="absolute -top-1 -right-1 flex h-3 w-3 z-20">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-80"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-gradient-to-r from-rose-500 to-amber-500 border border-slate-900 shadow-sm"></span>
             </span>
           </div>
 
           <div>
-            <h1 className="text-lg font-bold text-slate-100 tracking-tight leading-none font-heading">
-              DISASTER<span className="text-rose-500">WATCH</span>
-            </h1>
-            <p className="text-[10px] font-medium text-slate-400 tracking-wider uppercase">
-              Global Live Emergency Monitor
+            <div className="flex items-center space-x-1.5">
+              <h1 className="text-base font-black tracking-tight leading-none font-heading flex items-center">
+                <span className="bg-gradient-to-b from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
+                  DISASTER
+                </span>
+                <span className="ml-1 bg-gradient-to-r from-rose-500 via-red-500 to-amber-400 bg-clip-text text-transparent drop-shadow-[0_0_8px_rgba(244,63,94,0.45)]">
+                  WATCH
+                </span>
+              </h1>
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase bg-rose-500/15 border border-rose-500/30 text-rose-400">
+                LIVE
+              </span>
+            </div>
+            <p className="text-[9px] font-medium text-slate-400 tracking-wide mt-0.5 flex items-center gap-1">
+              <span className="text-slate-300 font-semibold">NASA/USGS</span>
+              <span className="text-slate-600">•</span>
+              <span>Real-Time Hazard Feed</span>
             </p>
           </div>
         </div>

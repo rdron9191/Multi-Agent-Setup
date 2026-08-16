@@ -1,7 +1,7 @@
 ---
 description: Security expert that performs a focused security review of recent changes
 mode: subagent
-model: ollama/gemma4:31b
+model: mlx/nemotron-3.5-lightning:30b-mlx
 temperature: 0.05
 maxsteps: 6
 permission:

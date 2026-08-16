@@ -55,16 +55,176 @@
     <style>
       :root { color-scheme: dark; }
       body { background-color: #0b0f19; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
-      .leaflet-container { background-color: #0b0f19 !important; width: 100% !important; height: 100% !important; font-family: 'Inter', sans-serif !important; }
-      img.leaflet-tile { background-color: transparent !important; }
+      
+      /* Butter-Smooth GPU Accelerated Map Container & Tile Transitions */
+      .leaflet-container {
+        background-color: #0b0f19 !important;
+        width: 100% !important;
+        height: 100% !important;
+        font-family: 'Inter', sans-serif !important;
+        outline: none !important;
+      }
+      .leaflet-tile {
+        filter: inherit;
+        transition: opacity 0.25s ease-out !important;
+        will-change: opacity, transform !important;
+        image-rendering: -webkit-optimize-contrast;
+      }
+      .leaflet-tile-container {
+        will-change: transform, opacity !important;
+      }
+      .leaflet-zoom-animated {
+        will-change: transform !important;
+        transition: transform 0.25s cubic-bezier(0, 0, 0.25, 1) !important;
+      }
+      .leaflet-pane > svg path,
+      .leaflet-tile-pane {
+        image-rendering: -webkit-optimize-contrast;
+      }
+
       .leaflet-popup-content-wrapper { background: #151c2e !important; color: #f8fafc !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; border-radius: 1rem !important; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5) !important; }
       .leaflet-popup-tip { background: #151c2e !important; }
       .disaster-marker-critical { animation: pulse-ring-red 2s infinite; }
       .disaster-marker-high { animation: pulse-ring-orange 2s infinite; }
       @keyframes pulse-ring-red { 0% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.7); } 70% { box-shadow: 0 0 0 16px rgba(244, 63, 94, 0); } 100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0); } }
       @keyframes pulse-ring-orange { 0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); } 70% { box-shadow: 0 0 0 14px rgba(245, 158, 11, 0); } 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); } }
+      @keyframes radar-sweep { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      .radar-sweep { animation: radar-sweep 4s linear infinite; }
+      @keyframes soft-pulse { 0%, 100% { opacity: 0.85; transform: scale(1); } 50% { opacity: 1; transform: scale(1.03); } }
+      .brand-pulse { animation: soft-pulse 3s ease-in-out infinite; }
       .no-scrollbar::-webkit-scrollbar { display: none; }
       .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+      /* High-Tech Seamless Non-Modal Callout Bubble */
+      .disaster-callout-popup {
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      }
+      .disaster-callout-popup .leaflet-popup-content-wrapper {
+        background: #0d1322 !important;
+        color: #f1f5f9 !important;
+        border-radius: 20px !important;
+        border: 1px solid rgba(100, 116, 139, 0.5) !important;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.95), 0 0 35px rgba(244, 63, 94, 0.2) !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        position: relative !important;
+        will-change: transform, opacity;
+      }
+      .disaster-callout-popup .leaflet-popup-content {
+        margin: 0 !important;
+        line-height: 1.4 !important;
+        max-height: 480px !important;
+        overflow-y: auto !important;
+        border-radius: 20px !important;
+        width: 360px !important;
+      }
+      @media (max-width: 640px) {
+        .disaster-callout-popup .leaflet-popup-content {
+          width: 290px !important;
+          max-height: 360px !important;
+        }
+      }
+      .disaster-callout-popup .leaflet-popup-tip-container {
+        display: none !important;
+      }
+      .disaster-callout-popup .leaflet-popup-close-button {
+        color: #94a3b8 !important;
+        padding: 8px 12px !important;
+        font-size: 18px !important;
+        font-weight: bold !important;
+        z-index: 50 !important;
+        top: 6px !important;
+        right: 6px !important;
+        transition: color 0.15s ease !important;
+      }
+      .disaster-callout-popup .leaflet-popup-close-button:hover {
+        color: #f43f5e !important;
+      }
+
+      /* Directional Pointer Arrows Attached Directly to the Callout Card */
+      .callout-arrow {
+        position: absolute;
+        width: 0;
+        height: 0;
+        z-index: 40;
+        pointer-events: none;
+      }
+      
+      /* TOP: Card is above dot, arrow points DOWN */
+      @keyframes pop-in-top {
+        0% { opacity: 0; transform: translate3d(0, 10px, 0) scale(0.96); }
+        100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+      }
+      .pos-top .leaflet-popup-content-wrapper {
+        animation: pop-in-top 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+      .pos-top .callout-arrow-top {
+        display: block !important;
+        bottom: -11px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-left: 12px solid transparent;
+        border-right: 12px solid transparent;
+        border-top: 12px solid #0d1322;
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.8));
+      }
+
+      /* BOTTOM: Card is below dot, arrow points UP */
+      @keyframes pop-in-bottom {
+        0% { opacity: 0; transform: translateY(calc(100% + 20px)) scale(0.96); }
+        100% { opacity: 1; transform: translateY(calc(100% + 30px)) scale(1); }
+      }
+      .pos-bottom .leaflet-popup-content-wrapper {
+        animation: pop-in-bottom 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+      .pos-bottom .callout-arrow-bottom {
+        display: block !important;
+        top: -11px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-left: 12px solid transparent;
+        border-right: 12px solid transparent;
+        border-bottom: 12px solid #0d1322;
+        filter: drop-shadow(0 -4px 6px rgba(0,0,0,0.8));
+      }
+
+      /* LEFT: Card is to the left of dot, arrow points RIGHT */
+      @keyframes pop-in-left {
+        0% { opacity: 0; transform: translate(calc(-50% - 10px), 50%) scale(0.96); }
+        100% { opacity: 1; transform: translate(calc(-50% - 20px), 50%) scale(1); }
+      }
+      .pos-left .leaflet-popup-content-wrapper {
+        animation: pop-in-left 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+      .pos-left .callout-arrow-left {
+        display: block !important;
+        right: -11px;
+        top: 50%;
+        transform: translateY(-50%);
+        border-top: 12px solid transparent;
+        border-bottom: 12px solid transparent;
+        border-left: 12px solid #0d1322;
+        filter: drop-shadow(4px 0 6px rgba(0,0,0,0.8));
+      }
+
+      /* RIGHT: Card is to the right of dot, arrow points LEFT */
+      @keyframes pop-in-right {
+        0% { opacity: 0; transform: translate(calc(50% + 10px), 50%) scale(0.96); }
+        100% { opacity: 1; transform: translate(calc(50% + 20px), 50%) scale(1); }
+      }
+      .pos-right .leaflet-popup-content-wrapper {
+        animation: pop-in-right 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+      .pos-right .callout-arrow-right {
+        display: block !important;
+        left: -11px;
+        top: 50%;
+        transform: translateY(-50%);
+        border-top: 12px solid transparent;
+        border-bottom: 12px solid transparent;
+        border-right: 12px solid #0d1322;
+        filter: drop-shadow(-4px 0 6px rgba(0,0,0,0.8));
+      }
     </style>
   </head>
   <body class="text-slate-100 overflow-hidden select-none bg-[#0b0f19]">
@@ -98,6 +258,1060 @@
         else if (diffMins > 0) relative = `${diffMins}m ago`;
 
         return `${formattedStr} (${relative})`;
+      }
+ 
+      // Modern Tactical Mission Radar Beacon Emblem
+      function BrandEmblem({ size = 'lg' }) {
+        const isLg = size === 'lg';
+        const boxDim = isLg ? 'w-11 h-11' : 'w-9 h-9';
+        const iconDim = isLg ? 'w-6 h-6' : 'w-4.5 h-4.5';
+        const gradId = isLg ? 'beacon-grad-lg' : 'beacon-grad-sm';
+        return (
+          <div className="relative group shrink-0">
+            <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-rose-600/50 via-rose-500/30 to-amber-500/40 blur-md opacity-80 group-hover:opacity-100 transition duration-500"></div>
+            
+            <div className={`relative ${boxDim} rounded-2xl bg-gradient-to-b from-[#1e293b]/95 via-[#0f172a]/95 to-[#0b0f19] p-[1px] border border-rose-400/30 shadow-2xl flex items-center justify-center overflow-hidden`}>
+              {/* Radar sweep overlay */}
+              <div className="absolute inset-0 opacity-45 pointer-events-none">
+                <div className="w-full h-full radar-sweep origin-center bg-[conic-gradient(from_0deg,transparent_0deg,transparent_270deg,rgba(244,63,94,0.45)_360deg)]"></div>
+              </div>
+
+              {/* Concentric subtle radar rings */}
+              <div className="absolute inset-0 flex items-center justify-center opacity-35 pointer-events-none">
+                <div className="w-3/4 h-3/4 rounded-full border border-rose-400/40 border-dashed"></div>
+              </div>
+
+              {/* Tactical Emergency Beacon SVG */}
+              <svg className={`${iconDim} text-rose-500 relative z-10 filter drop-shadow-[0_0_8px_rgba(244,63,94,0.8)]`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="2.5" fill="#f43f5e" />
+                <path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14" stroke={`url(#${gradId})`} />
+                <defs>
+                  <linearGradient id={gradId} x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#f43f5e" />
+                    <stop offset="0.5" stopColor="#fb7185" />
+                    <stop offset="1" stopColor="#f59e0b" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+
+            {/* Live radar corner pulse */}
+            <span className="absolute -top-1 -right-1 flex h-3 w-3 z-20">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-80"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-gradient-to-r from-rose-500 to-amber-500 border border-slate-900 shadow-sm"></span>
+            </span>
+          </div>
+        );
+      }
+
+      // --- Planetary Geological Intelligence & Natural Disaster LLM Engine ---
+      function generateAegisResponse(query, events, selectedModel = 'deepseek-v4') {
+        const q = (query || '').toLowerCase().trim();
+        const criticalEvents = events.filter((e) => e.severity === 'critical');
+        const earthquakes = events.filter((e) => e.category === 'earthquake');
+        const floods = events.filter((e) => e.category === 'flood');
+        const wildfires = events.filter((e) => e.category === 'wildfire');
+        const storms = events.filter((e) => e.category === 'storm');
+
+        // 1. SPECIFIC SCIENTIFIC QUERY: Ring of Fire (Circum-Pacific Belt)
+        if (
+          q.includes('ring of fire') ||
+          (q.includes('pacific') && (q.includes('earthquake') || q.includes('quake') || q.includes('most'))) ||
+          (q.includes('is it true') && (q.includes('fire') || q.includes('earthquake') || q.includes('ring')))
+        ) {
+          // Find live earthquakes currently in the Pacific Ring of Fire
+          const ringOfFireQuakes = earthquakes.filter(e => {
+            const lat = e.latitude;
+            const lng = e.longitude;
+            return (lng > 100 && lng < 180) || (lng < -60 && lng > -180) || (lat > 50 && lng < -130);
+          });
+
+          let res = `### 🌋 Pacific Ring of Fire Analysis & Confirmation\n\n`;
+          res += `**Yes, this is completely true and verified by global seismic data.**\n\n`;
+          res += `The **Pacific Ring of Fire** (also known as the *Circum-Pacific Belt*) is the most seismically and volcanically active geological zone on planet Earth:\n\n`;
+          res += `* **Seismic Concentration:** **~81% of the world's largest earthquakes** and **~90% of all recorded earthquakes** occur along this belt.\n`;
+          res += `* **Volcanic Concentration:** **~75% of Earth's active and dormant volcanoes** (over 450 volcanoes) lie around its perimeter.\n`;
+          res += `* **Geographical Path:** A 40,000-kilometer (25,000-mile) horseshoe-shaped track wrapping from New Zealand, through the Tonga trench, Indonesia, the Philippines, Japan, the Kuril-Kamchatka arc, the Aleutian Islands (Alaska), down through Cascadia, California (San Andreas), Mexico, and the Andean subduction zone in South America.\n\n`;
+          
+          res += `#### 🔬 Why Do Most Earthquakes Happen Here? (Subduction Tectonics)\n`;
+          res += `The Pacific basin is bounded by heavy oceanic lithosphere (*Pacific Plate, Nazca Plate, Cocos Plate, Philippine Sea Plate*) continuously colliding with and plunging under lighter continental plates (*North American, Eurasian, Indo-Australian, South American*).\n\n`;
+          res += `As these plates grind past each other, massive friction prevents smooth motion, locking the tectonic slabs. Strain accumulates until the rock violently ruptures along **megathrust subduction zones**, producing magnitude 7.0+ to 9.0+ megathrust earthquakes and deadly tsunamis.\n\n`;
+
+          if (ringOfFireQuakes.length > 0) {
+            res += `#### 🛰️ Live Real-Time Events Tracked in the Ring of Fire\n`;
+            ringOfFireQuakes.slice(0, 3).forEach((eq, idx) => {
+              res += `${idx + 1}. **${eq.title}** (Mag \`${eq.magnitude || 'N/A'}\`)\n`;
+              res += `   * 📍 *Location:* ${eq.locationName} (\`${eq.latitude.toFixed(2)}°, ${eq.longitude.toFixed(2)}°\`)\n`;
+              res += `   * 🌊 *Focal Depth:* ${eq.depthKm || 10} km\n`;
+            });
+            res += `\n`;
+          }
+
+          res += `> 💡 **Key Takeaway:** If you live along the Pacific Rim (Japan, West Coast USA, Chile, Indonesia, Philippines, New Zealand), maintaining an active earthquake preparedness plan and a 72-hour survival Go-Bag is mandatory.`;
+          return res;
+        }
+
+        // 2. Plate Tectonics & Faults (San Andreas, Cascadia, Fault Lines)
+        if (
+          q.includes('san andreas') ||
+          q.includes('cascadia') ||
+          q.includes('fault') ||
+          q.includes('subduction') ||
+          q.includes('tectonic plate') ||
+          q.includes('plate boundary')
+        ) {
+          let res = `### 🧭 Tectonic Plates & Active Fault Lines\n\n`;
+          res += `Earth's outer crust is divided into major rigid tectonic plates that move 1 to 10 cm per year. Faults are fractures where blocks of crust slide past one another:\n\n`;
+          res += `* **Subduction Zones (Convergent):** One plate dives beneath another (e.g. *Cascadia Subduction Zone*, *Japan Trench*, *Peru-Chile Trench*). These generate the world's most catastrophic **Megathrust Earthquakes ($M_w 8.0 - 9.5$)** and tsunamis.\n`;
+          res += `* **Transform Faults (Strike-Slip):** Plates slide horizontally past each other (e.g. *San Andreas Fault* in California, *Alpine Fault* in New Zealand, *North Anatolian Fault* in Turkey).\n`;
+          res += `* **Divergent Boundaries:** Plates pull apart, creating new oceanic crust (e.g. *Mid-Atlantic Ridge*, *East African Rift*).\n\n`;
+          res += `*Current Live Earthquakes Monitored on Fault Lines:* **${earthquakes.length} events worldwide**.`;
+          return res;
+        }
+
+        // 3. Assam & Himalayan Seismicity (Alpide Belt)
+        if (
+          (q.includes('assam') || q.includes('himalaya') || q.includes('india')) &&
+          (q.includes('earthquake') || q.includes('quake') || q.includes('seismic'))
+        ) {
+          let res = `### 🏔️ Assam & Himalayan Seismic Hazard Analysis\n\n`;
+          res += `Assam and the Northeast Himalayan region fall in **Seismic Zone V (Highest Risk Category)**:\n\n`;
+          res += `* **Geological Cause (Alpide Belt):** The Indian Tectonic Plate is actively moving north-northeast and colliding with the Eurasian Plate at approximately **5 cm/year**. This ongoing continental collision creates immense compressive stress along the *Main Himalayan Thrust (MHT)*, *Dauki Fault*, and *Kopili Fault*.\n`;
+          res += `* **Historical Precedents:** The region produced two of the world's largest continental earthquakes: the **1897 Great Assam Earthquake (M ~8.1)** and the **1950 Assam-Tibet Earthquake (M 8.6)**, which completely altered the course of the Brahmaputra River.\n\n`;
+          res += `> 🛡️ **ASDMA Guidelines:** Secure non-structural furniture, install seismic gas shutoff valves, and practice Drop, Cover, and Hold On.`;
+          return res;
+        }
+
+        // 4. Earthquake Predictability vs Early Warning Systems (EEW)
+        if (
+          q.includes('predict') ||
+          q.includes('forecast') ||
+          q.includes('can we know') ||
+          q.includes('in advance') ||
+          q.includes('early warning') ||
+          q.includes('shakealert')
+        ) {
+          let res = `### ⏱️ Can Earthquakes Be Predicted in Advance?\n\n`;
+          res += `**Short Answer: No, exact earthquake prediction (date, time, and precise magnitude) is impossible with current scientific methods.**\n\n`;
+          res += `* **Why Prediction Fails:** Fault stress accumulation occurs deep underground (5–700 km) in complex, non-linear rock geometries without reliable precursor signals.\n`;
+          res += `* **What DOES Work (Earthquake Early Warning - EEW):**\n`;
+          res += `  * Systems like **USGS ShakeAlert** (US), **JMA EEW** (Japan), and **Android Earthquake Alerts** detect the initial, non-destructive **P-waves (Primary compression waves)** moving at ~6 km/s.\n`;
+          res += `  * Algorithms calculate the epicenter and send instant digital alerts **5 to 60 seconds** before the destructive, slower **S-waves (Shear waves)** arrive.\n`;
+          res += `  * This provides enough time to automatically halt bullet trains, shut off natural gas valves, and allow citizens to **Drop, Cover, and Hold On**.\n`;
+          return res;
+        }
+
+        // 5. Magnitude vs Intensity Science
+        if (
+          q.includes('difference between magnitude and intensity') ||
+          q.includes('richter vs mercalli') ||
+          q.includes('what is magnitude') ||
+          q.includes('intensity')
+        ) {
+          let res = `### 📊 Earthquake Magnitude vs Intensity Explained\n\n`;
+          res += `* **Magnitude ($M_w$ / Moment Magnitude Scale):**\n`;
+          res += `  * Measures the **total energy released at the earthquake source (focus)**.\n`;
+          res += `  * It is a single logarithmic number for the entire event. Each whole number increase represents **~32 times more energy released** (e.g. M 7.0 releases 32× more energy than M 6.0, and 1,000× more than M 5.0).\n\n`;
+          res += `* **Intensity (Modified Mercalli Scale $I - XII$):**\n`;
+          res += `  * Measures the **severity of shaking and damage felt at a specific geographic location**.\n`;
+          res += `  * Intensity varies by distance from epicenter, local soil conditions (alluvial soil amplifies shaking via liquefaction), and building construction quality.`;
+          return res;
+        }
+
+        // 6. Assam Floods & Brahmaputra Hydrology
+        if (
+          (q.includes('assam') || q.includes('brahmaputra') || q.includes('guwahati') || q.includes('kaziranga')) &&
+          (q.includes('flood') || q.includes('water') || q.includes('rain') || q.includes('river') || q.includes('every year'))
+        ) {
+          let res = `### 🌧️ Assam & Brahmaputra Flood Dynamics\n\n`;
+          res += `Assam experiences catastrophic annual flooding due to unique hydrological and geographical factors:\n\n`;
+          res += `* **Hydrological Bottleneck:** The Brahmaputra River receives water from over 50 major tributaries draining the steep, high-precipitation slopes of the Himalayas, Bhutan, and Arunachal Pradesh.\n`;
+          res += `* **Sediment Overload & Siltation:** Himalayan tectonic activity and soil erosion dump massive silt volumes into the riverbed, raising the bed level and causing rivers to breach embankments.\n`;
+          res += `* **Monsoon Cloudbursts:** The South Asian Summer Monsoon funnels intense atmospheric moisture into the funnel-shaped Assam Valley.\n\n`;
+          res += `**🚨 ASDMA Emergency Helplines:**\n`;
+          res += `* State Emergency Operations Centre (SEOC): **1070** / **1077**\n`;
+          res += `* NDRF / SDRF Water Rescue Dispatch active across all 35 districts.`;
+          return res;
+        }
+
+        // 7. El Niño vs La Niña (ENSO Climate Patterns)
+        if (
+          q.includes('el nino') ||
+          q.includes('la nina') ||
+          q.includes('enso') ||
+          q.includes('climate')
+        ) {
+          let res = `### 🌡️ El Niño & La Niña (ENSO) Impact on Disasters\n\n`;
+          res += `The **El Niño-Southern Oscillation (ENSO)** is a major climate cycle driven by water temperature fluctuations in the tropical Pacific Ocean:\n\n`;
+          res += `* **El Niño (Warm Phase):**\n`;
+          res += `  * Pacific trade winds weaken; warm ocean water pushes east toward South America.\n`;
+          res += `  * *Impacts:* Severe droughts in Australia, India, and Southeast Asia; intense rainfall, atmospheric rivers, and flooding in western North and South America.\n\n`;
+          res += `* **La Niña (Cool Phase):**\n`;
+          res += `  * Trade winds strengthen, pushing warm water into the Western Pacific.\n`;
+          res += `  * *Impacts:* Above-average Atlantic hurricane seasons, enhanced monsoon rainfall in Asia (higher flood risk in Assam/India), and drier conditions in southern US.`;
+          return res;
+        }
+
+        // 8. Tsunami Warning Protocols
+        if (q.includes('tsunami') || q.includes('sea receding') || q.includes('ocean surge')) {
+          let res = `### 🌊 Tsunami Warning & Marine Evacuation Protocols\n\n`;
+          res += `**Natural Warning Signs:**\n`;
+          res += `* Strong coastal ground shaking lasting over 20 seconds.\n`;
+          res += `* Sudden sea withdrawal exposing marine reefs and fish.\n`;
+          res += `* Loud jet-engine roar echoing from the deep ocean horizon.\n\n`;
+          res += `**Survival Rules:**\n`;
+          res += `1. **Evacuate to High Ground:** Move at least **30 meters (100 ft) elevation** or **2 km inland** immediately.\n`;
+          res += `2. **Evacuate on Foot:** Avoid car traffic gridlock.\n`;
+          res += `3. **Successive Waves:** The first tsunami wave is rarely the largest; dangerous surges continue for hours.`;
+          return res;
+        }
+
+        // 9. Wildfires
+        if (q.includes('fire') || q.includes('wildfire') || q.includes('smoke') || q.includes('burn')) {
+          let res = `### 🔥 Wildfire Evacuation & Smoke Defense\n\n`;
+          res += `*Active Wildfire Fronts Tracked:* **${wildfires.length} regions**.\n\n`;
+          res += `**Evacuation Readiness Levels:**\n`;
+          res += `* **Level 1 (READY):** Prepare 72-hour emergency Go-Bag, keep vehicles fueled.\n`;
+          res += `* **Level 2 (SET):** Confine pets, close all windows, shut off propane valves.\n`;
+          res += `* **Level 3 (GO!):** Evacuate immediately along designated fire escape routes.\n\n`;
+          res += `**Respiratory Protection:** Wear N95 particulate masks to filter toxic smoke particulates.`;
+          return res;
+        }
+
+        // 10. Storms & Cyclones
+        if (q.includes('storm') || q.includes('cyclone') || q.includes('hurricane') || q.includes('typhoon') || q.includes('wind')) {
+          let res = `### 🌀 Severe Storm & Cyclone Shelter Protocol\n\n`;
+          res += `*Monitored Cyclonic Systems:* **${storms.length} active storm fronts**.\n\n`;
+          res += `**Shelter Protocol:**\n`;
+          res += `1. Seek shelter in an interior room on the lowest floor away from windows.\n`;
+          res += `2. Keep rechargeable flashlights ready; avoid open candles.\n`;
+          res += `3. Secure loose outdoor objects and monitor barometric pressure drops.`;
+          return res;
+        }
+
+        // 11. 72-Hour Go-Bag Checklist
+        if (
+          q.includes('go-bag') ||
+          q.includes('bag') ||
+          q.includes('kit') ||
+          q.includes('supply') ||
+          q.includes('supplies') ||
+          q.includes('prepare') ||
+          q.includes('pack')
+        ) {
+          let res = `### 🎒 72-Hour Emergency Survival Go-Bag Checklist\n\n`;
+          res += `Standard 3-day survival kit essentials per person:\n\n`;
+          res += `* **Hydration:** 3 Gallons of water (1 gallon/day/person) + purification tablets.\n`;
+          res += `* **Food:** High-calorie non-perishable survival rations, protein bars, manual can opener.\n`;
+          res += `* **Communication:** Solar / Hand-crank NOAA Emergency Radio + tactical LED flashlight.\n`;
+          res += `* **Medical:** Comprehensive first-aid trauma kit, 7-day prescription medications, N95 masks.\n`;
+          res += `* **Power & Tools:** 20,000mAh power bank, cables, multi-tool knife, waterproof matches.\n`;
+          res += `* **Critical Documents:** Waterproof pouch containing passport/IDs, emergency contacts, cash in small denominations.`;
+          return res;
+        }
+
+        // 12. Location / Regional Telemetry Search
+        const matchingEvents = events.filter((e) =>
+          q.split(' ').some(
+            (w) =>
+              w.length > 3 &&
+              (e.locationName.toLowerCase().includes(w) ||
+                e.title.toLowerCase().includes(w) ||
+                e.category.toLowerCase().includes(w))
+          )
+        );
+
+        if (matchingEvents.length > 0) {
+          let res = `### 📍 Active Hazard Telemetry for "${query}"\n\n`;
+          res += `Identified **${matchingEvents.length} live incident(s)**:\n\n`;
+          matchingEvents.slice(0, 3).forEach((ev, i) => {
+            res += `${i + 1}. **${ev.title}**\n`;
+            res += `   * 🏷️ *Category:* \`${ev.category.toUpperCase()}\` | *Severity:* \`${ev.severity.toUpperCase()}\`\n`;
+            res += `   * 📍 *Location:* ${ev.locationName}\n`;
+            if (ev.magnitude) res += `   * 💥 *Magnitude:* ${ev.magnitude}\n`;
+            if (ev.description) res += `   * 📝 *Report:* ${ev.description}\n`;
+            if (ev.safetyAdvice && ev.safetyAdvice.length > 0) {
+              res += `   * 🛡️ *Protocol:* ${ev.safetyAdvice[0]}\n`;
+            }
+            res += `\n`;
+          });
+          return res;
+        }
+
+        // 13. Critical Threats & Live Situation Briefing
+        if (
+          q.includes('critical') ||
+          q.includes('situation') ||
+          q.includes('threat') ||
+          q.includes('overview') ||
+          q.includes('summary') ||
+          q.includes('status') ||
+          q.includes('active') ||
+          q.includes('happening')
+        ) {
+          let res = `### 🚨 Live Situational Briefing\n\n`;
+          res += `Currently monitoring **${events.length} active natural hazard events** across USGS Seismic, NASA EONET, and Copernicus Emergency Services.\n\n`;
+          res += `* **Critical Threat Level:** \`${criticalEvents.length} Active High-Priority Zones\`\n`;
+          res += `* **Breakdown:** ${earthquakes.length} Quakes | ${floods.length} Floods | ${wildfires.length} Wildfires | ${storms.length} Storms\n\n`;
+
+          if (criticalEvents.length > 0) {
+            res += `**Top Priority Incidents:**\n`;
+            criticalEvents.slice(0, 4).forEach((ev, i) => {
+              res += `${i + 1}. **${ev.title}** (${ev.category.toUpperCase()})\n`;
+              res += `   * 📍 *Location:* ${ev.locationName}\n`;
+              if (ev.magnitude) res += `   * 💥 *Magnitude:* ${ev.magnitude}\n`;
+              if (ev.affectedRadiusKm) res += `   * ⭕ *Affected Radius:* ${ev.affectedRadiusKm} km\n`;
+              if (ev.safetyAdvice && ev.safetyAdvice.length > 0) {
+                res += `   * 🛡️ *Protocol:* ${ev.safetyAdvice[0]}\n`;
+              }
+              res += `\n`;
+            });
+          }
+          res += `> ⚠️ Maintain battery reserves and follow local civil protection broadcasts.`;
+          return res;
+        }
+
+        // 14. General Earthquake Protocol Fallback
+        if (q.includes('earthquake') || q.includes('quake') || q.includes('shake')) {
+          let res = `### 🌋 Earthquake Emergency Protocols\n\n`;
+          res += `*Current Live Seismic Events Tracked:* **${earthquakes.length} earthquakes**.\n\n`;
+          res += `**Immediate Life-Safety Steps:**\n`;
+          res += `1. **DROP, COVER, AND HOLD ON:** Drop under a sturdy table or desk, protect head/neck.\n`;
+          res += `2. **Indoors:** Stay inside! Avoid doorways, glass windows, and elevators.\n`;
+          res += `3. **Outdoors:** Move away from power lines, chimneys, and tall building facades.\n`;
+          res += `4. **Post-Shaking:** Inspect gas lines, smell for leaks, prepare for aftershocks.\n\n`;
+          if (earthquakes.length > 0) {
+            const topQuake = [...earthquakes].sort((a, b) => (b.magnitude || 0) - (a.magnitude || 0))[0];
+            res += `*Top Active Event:* **${topQuake.title}** (Mag ${topQuake.magnitude || 'N/A'}) near ${topQuake.locationName}.`;
+          }
+          return res;
+        }
+
+        // 15. Intelligent Default Science Fallback
+        return `### 🛰️ Terra Sentinel Planetary Defense (${selectedModel.toUpperCase()})
+
+I am continuously monitoring real-time global telemetry from **USGS**, **NASA Earth Observatory**, and **Copernicus EMS**.
+
+**Suggested questions you can ask me:**
+* **"Is it true that the Ring of Fire has most earthquakes?"** — Geological subduction analysis.
+* **"Why does Assam flood every year?"** — Brahmaputra basin hydrology & ASDMA helplines.
+* **"What is the difference between magnitude and intensity?"** — Seismic physics explanation.
+* **"Can earthquakes be predicted?"** — Early warning systems vs forecasting science.
+* **"What are the critical threats right now?"** — Real-time high-priority telemetry summary.
+* **"What should I pack in an emergency Go-Bag?"** — 72-hour survival checklist.
+
+> *For immediate life-threatening emergencies, always dial your local emergency services (112 / 911 / ASDMA 1070).*`;
+      }
+
+      function formatChatInline(str) {
+        return str
+          .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-bold">$1</strong>')
+          .replace(/\*(.*?)\*/g, '<em class="text-slate-300 italic">$1</em>')
+          .replace(
+            /`([^`]+)`/g,
+            '<code class="px-1.5 py-0.5 rounded bg-slate-800 text-rose-300 font-mono text-[11px] border border-slate-700/60">$1</code>'
+          );
+      }
+
+      function renderChatMessage(text) {
+        if (!text) return null;
+        const lines = text.split('\n');
+        return lines.map((line, idx) => {
+          if (line.startsWith('### ')) {
+            return (
+              <h4
+                key={idx}
+                className="text-sm font-extrabold text-slate-100 font-heading mt-2 mb-1 flex items-center gap-1.5"
+              >
+                {line.replace('### ', '')}
+              </h4>
+            );
+          }
+          if (line.startsWith('#### ')) {
+            return (
+              <h5
+                key={idx}
+                className="text-xs font-bold text-rose-300 uppercase tracking-wide font-heading mt-2 mb-1 flex items-center gap-1.5"
+              >
+                {line.replace('#### ', '')}
+              </h5>
+            );
+          }
+          if (line.startsWith('> ')) {
+            return (
+              <div
+                key={idx}
+                className="my-1.5 p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs font-medium"
+              >
+                {line.replace('> ', '')}
+              </div>
+            );
+          }
+          if (line.startsWith('* ') || line.startsWith('- ')) {
+            const content = line.substring(2);
+            return (
+              <div key={idx} className="flex items-start space-x-1.5 my-0.5 text-xs text-slate-200 pl-1">
+                <span className="text-rose-400 font-bold">•</span>
+                <span dangerouslySetInnerHTML={{ __html: formatChatInline(content) }} />
+              </div>
+            );
+          }
+          if (/^\d+\.\s/.test(line)) {
+            return (
+              <div
+                key={idx}
+                className="my-0.5 text-xs text-slate-200 pl-1"
+                dangerouslySetInnerHTML={{ __html: formatChatInline(line) }}
+              />
+            );
+          }
+          if (!line.trim()) {
+            return <div key={idx} className="h-1.5" />;
+          }
+          return (
+            <p
+              key={idx}
+              className="text-xs text-slate-200 leading-relaxed my-0.5"
+              dangerouslySetInnerHTML={{ __html: formatChatInline(line) }}
+            />
+          );
+        });
+      }
+
+      function AegisAIChatbot({ events, criticalCount, isOpen, setIsOpen, isDesktop }) {
+        const [messages, setMessages] = useState([
+          {
+            id: 'welcome',
+            sender: 'bot',
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            text: `### 🛰️ Terra Sentinel Planetary Defense Online\n\nI am your autonomous planetary emergency intelligence system, powered by neural reasoning models and live telemetry from **USGS Seismic**, **NASA Earth Observatory**, and **Copernicus EMS**.\n\n* **Active Hazards Tracked:** \`${events.length} Global Incidents\`\n* **Critical Threats:** \`${criticalCount} High-Priority Zones\`\n\nYou can type or use the **🎙️ voice microphone** to ask about geological science (*e.g., Ring of Fire, plate tectonics*), regional disaster risks, evacuation protocols, or live telemetry briefings.`,
+          },
+        ]);
+        const [input, setInput] = useState('');
+        const [isTyping, setIsTyping] = useState(false);
+        const [isRecording, setIsRecording] = useState(false);
+        const recognitionRef = useRef(null);
+        const messagesEndRef = useRef(null);
+
+        const scrollToBottom = () => {
+          messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        };
+
+        useEffect(() => {
+          if (isOpen) {
+            scrollToBottom();
+          }
+        }, [messages, isTyping, isOpen]);
+
+        // Cleanup speech recognition on unmount
+        useEffect(() => {
+          return () => {
+            if (recognitionRef.current) {
+              try {
+                recognitionRef.current.stop();
+              } catch (e) {}
+            }
+          };
+        }, []);
+
+        // --- Speech to Text / Audio Recording ---
+        const toggleSpeechRecognition = () => {
+          if (isRecording) {
+            if (recognitionRef.current) {
+              try {
+                recognitionRef.current.stop();
+              } catch (e) {}
+            }
+            setIsRecording(false);
+            return;
+          }
+
+          const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+          if (!SpeechRecognition) {
+            alert('Voice speech recognition is not supported in this browser. Please try Chrome, Edge, or Safari.');
+            return;
+          }
+
+          try {
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = () => {
+              setIsRecording(true);
+            };
+
+            recognition.onresult = (event) => {
+              let transcript = '';
+              for (let i = 0; i < event.results.length; i++) {
+                transcript += event.results[i][0].transcript;
+              }
+              if (transcript) {
+                setInput(transcript);
+              }
+            };
+
+            recognition.onerror = (event) => {
+              console.warn('Speech recognition error:', event.error);
+              setIsRecording(false);
+              if (event.error === 'not-allowed') {
+                alert('Microphone access was denied. Please allow microphone permission in your browser settings to use voice input.');
+              }
+            };
+
+            recognition.onend = () => {
+              setIsRecording(false);
+            };
+
+            recognitionRef.current = recognition;
+            recognition.start();
+          } catch (err) {
+            console.error('Speech recognition start failed:', err);
+            setIsRecording(false);
+          }
+        };
+
+        const handleSend = (textToSend) => {
+          const query = (textToSend || input).trim();
+          if (!query) return;
+
+          if (isRecording && recognitionRef.current) {
+            try {
+              recognitionRef.current.stop();
+            } catch (e) {}
+            setIsRecording(false);
+          }
+
+          const userMsg = {
+            id: 'user-' + Date.now(),
+            sender: 'user',
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            text: query,
+          };
+
+          setMessages((prev) => [...prev, userMsg]);
+          setInput('');
+          setIsTyping(true);
+
+          setTimeout(() => {
+            const responseText = generateAegisResponse(query, events);
+            const botMsg = {
+              id: 'bot-' + Date.now(),
+              sender: 'bot',
+              timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              text: responseText,
+            };
+            setMessages((prev) => [...prev, botMsg]);
+            setIsTyping(false);
+          }, 500);
+        };
+
+        const quickPrompts = [
+          { label: '🌋 Ring of Fire Science', query: 'People are saying that the Ring of Fire is having most of the earthquakes. Is it true?' },
+          { label: '⚡ Critical Threats Briefing', query: 'What are the critical threats right now?' },
+          { label: '🌧️ Assam Flood Protocol', query: 'Why does Assam flood every year and what are the emergency helplines?' },
+          { label: '🎒 72-Hr Go-Bag Checklist', query: 'What should I put in an emergency go-bag?' },
+          { label: '⏱️ Predict Earthquakes?', query: 'Can earthquakes be predicted in advance?' },
+          { label: '🌊 Tsunami Warning Signs', query: 'What are the natural warning signs of a tsunami?' },
+        ];
+
+        return (
+          <>
+            {/* Floating Action Button */}
+            {!isOpen && (
+              <button
+                onClick={() => setIsOpen(true)}
+                className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-50 group flex items-center space-x-2 px-4 py-3 rounded-full bg-gradient-to-r from-purple-600 via-rose-600 to-amber-500 text-white font-bold text-xs shadow-[0_0_30px_rgba(168,85,247,0.45)] hover:shadow-[0_0_40px_rgba(244,63,94,0.65)] hover:scale-105 active:scale-95 transition-all border border-white/25 cursor-pointer"
+              >
+                <span className="relative flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+                </span>
+                <span className="text-base">✨</span>
+                <span className="tracking-wide font-heading uppercase">Terra Sentinel</span>
+              </button>
+            )}
+
+            {/* Chat Drawer / Modal */}
+            {isOpen && (
+              <div className="fixed inset-x-3 bottom-3 top-16 md:top-auto md:bottom-6 md:right-6 md:left-auto md:w-[450px] md:h-[650px] z-50 flex flex-col bg-[#0b0f19]/95 backdrop-blur-2xl border border-purple-500/40 rounded-3xl shadow-[0_0_60px_rgba(168,85,247,0.3)] overflow-hidden font-sans animate-in fade-in zoom-in-95 duration-200">
+                {/* Header */}
+                <div className="relative px-4 py-3 bg-gradient-to-r from-[#1e1b4b]/95 via-[#1e1435]/95 to-[#0f172a]/95 border-b border-purple-500/30 flex items-center justify-between shrink-0">
+                  <div className="absolute top-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-purple-500 via-rose-500 to-amber-400"></div>
+
+                  <div className="flex items-center space-x-2.5">
+                    <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-purple-600 to-rose-600 flex items-center justify-center shadow-lg shadow-purple-600/30 border border-white/20">
+                      <span className="text-base">✨</span>
+                    </div>
+                    <div>
+                      <div className="flex items-center space-x-1.5">
+                        <h3 className="text-sm font-black tracking-tight text-white font-heading">
+                          TERRA{' '}
+                          <span className="bg-gradient-to-r from-purple-400 to-rose-400 bg-clip-text text-transparent">
+                            SENTINEL
+                          </span>
+                        </h3>
+                        <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-extrabold uppercase bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                          🛰️ ORBITAL LIVE
+                        </span>
+                      </div>
+                      <p className="text-[10px] font-medium text-slate-400">
+                        Planetary Hazard Intelligence & Tactical Emergency Sentinel
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-1">
+                    <button
+                      onClick={() =>
+                        setMessages([
+                          {
+                            id: 'welcome',
+                            sender: 'bot',
+                            timestamp: new Date().toLocaleTimeString([], {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            }),
+                            text: `### 🛰️ Terra Sentinel Telemetry Reset\n\nTelemetry state reset. Ask me anything about geological science (*e.g., Ring of Fire*), active hazards, or survival protocols.`,
+                          },
+                        ])
+                      }
+                      title="Clear Chat"
+                      className="p-1.5 text-slate-400 hover:text-slate-200 rounded-lg hover:bg-slate-800/60 transition-all text-xs cursor-pointer"
+                    >
+                      🗑️
+                    </button>
+                    <button
+                      onClick={() => setIsOpen(false)}
+                      title="Close Copilot"
+                      className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-rose-500/20 hover:text-rose-300 transition-all text-sm font-bold cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+
+                {/* Quick Prompts Carousel / Chips */}
+                <div className="px-3 py-2 bg-[#0f172a]/60 border-b border-slate-800/80 flex items-center space-x-1.5 overflow-x-auto no-scrollbar shrink-0">
+                  {quickPrompts.map((p, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => handleSend(p.query)}
+                      className="px-2.5 py-1 rounded-xl bg-purple-950/40 hover:bg-purple-900/60 text-purple-200 text-[11px] font-medium whitespace-nowrap border border-purple-500/30 transition-all active:scale-95 flex items-center space-x-1 cursor-pointer"
+                    >
+                      <span>{p.label}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Messages Feed */}
+                <div className="flex-1 p-3.5 overflow-y-auto space-y-3">
+                  {messages.map((m) => {
+                    const isUser = m.sender === 'user';
+                    return (
+                      <div
+                        key={m.id}
+                        className={`flex flex-col ${isUser ? 'items-end' : 'items-start'}`}
+                      >
+                        <div className="flex items-center space-x-1.5 mb-1 px-1 text-[10px] text-slate-500">
+                          <span className="font-semibold text-slate-400">
+                            {isUser ? 'You' : '🛰️ Terra Sentinel'}
+                          </span>
+                          <span>•</span>
+                          <span>{m.timestamp}</span>
+                        </div>
+                        <div
+                          className={`max-w-[92%] rounded-2xl p-3 text-xs shadow-md ${
+                            isUser
+                              ? 'bg-gradient-to-r from-slate-800 to-slate-900 border border-slate-700 text-slate-100 rounded-tr-none'
+                              : 'bg-[#151c2e]/90 border border-purple-500/30 text-slate-200 rounded-tl-none backdrop-blur-md shadow-[0_0_20px_rgba(168,85,247,0.08)]'
+                          }`}
+                        >
+                          {renderChatMessage(m.text)}
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  {isTyping && (
+                    <div className="flex flex-col items-start">
+                      <div className="bg-[#151c2e] border border-purple-500/30 rounded-2xl rounded-tl-none p-3 shadow-md flex items-center space-x-2">
+                        <div className="flex space-x-1">
+                          <div className="w-2 h-2 rounded-full bg-purple-400 animate-bounce" />
+                          <div className="w-2 h-2 rounded-full bg-rose-400 animate-bounce [animation-delay:0.2s]" />
+                          <div className="w-2 h-2 rounded-full bg-amber-400 animate-bounce [animation-delay:0.4s]" />
+                        </div>
+                        <span className="text-[11px] text-purple-300 font-medium font-mono">
+                          Auto Neural Routing • Analyzing Telemetry...
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+
+                {/* Voice Recording Status Bar */}
+                {isRecording && (
+                  <div className="px-4 py-2 bg-rose-950/80 border-t border-rose-500/40 flex items-center justify-between text-xs text-rose-200 animate-pulse shrink-0">
+                    <div className="flex items-center space-x-2">
+                      <span className="flex h-2.5 w-2.5 relative">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
+                      </span>
+                      <span className="font-bold">Listening to voice input... Speak now</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={toggleSpeechRecognition}
+                      className="px-2 py-0.5 rounded bg-rose-600 hover:bg-rose-500 text-white font-bold text-[10px] cursor-pointer"
+                    >
+                      Done / Stop
+                    </button>
+                  </div>
+                )}
+
+                {/* Input Footer Form */}
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSend();
+                  }}
+                  className="p-3 bg-[#080d18] border-t border-purple-500/30 flex items-center space-x-2 shrink-0"
+                >
+                  <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder={isRecording ? "Listening to your voice..." : "Ask about Ring of Fire, active hazards, safety, go-bag..."}
+                    className={`flex-1 bg-slate-900/90 border rounded-xl px-3.5 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none transition-all shadow-inner ${
+                      isRecording ? 'border-rose-500/80 ring-1 ring-rose-500/50' : 'border-slate-700 focus:border-purple-500'
+                    }`}
+                  />
+
+                  {/* Microphone / Speech-to-Text Button */}
+                  <button
+                    type="button"
+                    onClick={toggleSpeechRecognition}
+                    title={isRecording ? "Stop voice recording" : "Record voice query (Speech to Text)"}
+                    className={`px-3 py-2 rounded-xl transition-all flex items-center justify-center cursor-pointer ${
+                      isRecording
+                        ? 'bg-rose-600 text-white shadow-[0_0_15px_rgba(244,63,94,0.8)] border border-rose-400 scale-105'
+                        : 'bg-slate-800/90 hover:bg-purple-900/40 text-slate-300 hover:text-white border border-slate-700 hover:border-purple-500/50'
+                    }`}
+                  >
+                    {isRecording ? (
+                      <div className="flex items-center space-x-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="w-4 h-4 text-white animate-pulse"
+                        >
+                          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                          <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                          <line x1="12" y1="19" x2="12" y2="22" />
+                        </svg>
+                      </div>
+                    ) : (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="w-4 h-4 text-slate-300 hover:text-white transition-colors"
+                      >
+                        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                        <line x1="12" y1="19" x2="12" y2="22" />
+                      </svg>
+                    )}
+                  </button>
+
+                  {/* Send Button */}
+                  <button
+                    type="submit"
+                    disabled={!input.trim() || isTyping}
+                    className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-rose-600 hover:from-purple-500 hover:to-rose-500 disabled:opacity-40 text-white text-xs font-bold transition-all shadow-md active:scale-95 flex items-center space-x-1 cursor-pointer shrink-0"
+                  >
+                    <span>Send</span>
+                    <span>➔</span>
+                  </button>
+                </form>
+              </div>
+            )}
+          </>
+        );
+      }
+
+      // --- Global Event Registry & Map Callout Actions ---
+      window.__allEventsMap = new Map();
+      window.__markersMap = new Map();
+      window.__currentCalloutSide = new Map();
+
+      window.__askTerraSentinel = (eventId) => {
+        const ev = window.__allEventsMap.get(eventId);
+        if (window.__setTerraSentinelOpen) {
+          window.__setTerraSentinelOpen(true);
+        }
+      };
+
+      window.__shareDisasterAlert = (eventId) => {
+        const ev = window.__allEventsMap.get(eventId);
+        if (!ev) return;
+        if (navigator.share) {
+          navigator.share({
+            title: ev.title,
+            text: `🚨 EMERGENCY ALERT: ${ev.title} in ${ev.locationName}. Active live disaster report from Global Disaster Watch.`,
+            url: window.location.href,
+          }).catch(() => {});
+        } else {
+          navigator.clipboard.writeText(`${ev.title} - ${ev.locationName} (${window.location.href})`);
+          alert('Emergency disaster alert copied to clipboard!');
+        }
+      };
+
+      window.__setCalloutSide = (eventId, side) => {
+        const ev = window.__allEventsMap.get(eventId);
+        const marker = window.__markersMap.get(eventId);
+        if (!ev || !marker) return;
+
+        window.__currentCalloutSide.set(eventId, side);
+        const html = createDisasterCalloutHtml(ev, side);
+        marker.setPopupContent(html);
+        
+        const popup = marker.getPopup();
+        if (popup) {
+          const el = popup.getElement();
+          if (el) {
+            el.classList.remove('pos-top', 'pos-bottom', 'pos-left', 'pos-right');
+            el.classList.add(`pos-${side}`);
+          }
+        }
+      };
+
+      function getOptimalSide(map, lat, lng) {
+        if (!map) return 'top';
+        try {
+          const size = map.getSize();
+          const pt = map.latLngToContainerPoint([lat, lng]);
+          
+          const spaceTop = pt.y;
+          const spaceBottom = size.y - pt.y;
+          const spaceLeft = pt.x;
+          const spaceRight = size.x - pt.x;
+
+          // If close to top (less than 400px above) and more space below -> bottom
+          if (spaceTop < 400 && spaceBottom >= 300) {
+            return 'bottom';
+          }
+          // If close to right edge (less than 380px) and more space left -> left
+          if (spaceRight < 380 && spaceLeft >= 380) {
+            return 'left';
+          }
+          // If close to left edge (less than 380px) and more space right -> right
+          if (spaceLeft < 380 && spaceRight >= 380) {
+            return 'right';
+          }
+          if (spaceTop >= 350) return 'top';
+          if (spaceBottom >= 350) return 'bottom';
+          if (spaceRight >= spaceLeft) return 'right';
+          return 'left';
+        } catch (e) {
+          return 'top';
+        }
+      }
+
+      // --- High-Tech Non-Modal Callout Bubble Generator (Multi-Side Arrow Pointer) ---
+      function createDisasterCalloutHtml(event, side = 'top') {
+        if (!event) return '';
+        const isCritical = event.severity === 'critical';
+        const isHigh = event.severity === 'high';
+        
+        let categoryIcon = '⚠️';
+        if (event.category === 'flood') categoryIcon = '🌧️';
+        if (event.category === 'drought') categoryIcon = '🏜️';
+        if (event.category === 'landslide') categoryIcon = '🪨';
+        if (event.category === 'earthquake') categoryIcon = '🌋';
+        if (event.category === 'tsunami') categoryIcon = '🌊';
+        if (event.category === 'wildfire') categoryIcon = '🔥';
+        if (event.category === 'storm') categoryIcon = '🌀';
+        if (event.category === 'volcano') categoryIcon = '🌋';
+        if (event.category === 'heatwave') categoryIcon = '☀️';
+
+        const sevBg = isCritical ? 'background: #f43f5e; color: #ffffff;' : (isHigh ? 'background: #f59e0b; color: #020617;' : 'background: #10b981; color: #020617;');
+
+        const dateStr = formatEventDate(event.timestamp);
+
+        let metricsHtml = '';
+        if (event.magnitude) {
+          metricsHtml += `
+            <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(51, 65, 85, 0.8); padding: 8px 10px; border-radius: 12px;">
+              <div style="font-size: 8.5px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">Magnitude</div>
+              <div style="font-size: 14px; font-weight: 900; color: #fbbf24; margin-top: 2px;">M ${event.magnitude}</div>
+            </div>
+          `;
+        }
+        if (event.depthKm) {
+          metricsHtml += `
+            <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(51, 65, 85, 0.8); padding: 8px 10px; border-radius: 12px;">
+              <div style="font-size: 8.5px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">Focal Depth</div>
+              <div style="font-size: 14px; font-weight: 900; color: #f1f5f9; margin-top: 2px;">${event.depthKm} km</div>
+            </div>
+          `;
+        }
+        if (event.affectedRadiusKm) {
+          metricsHtml += `
+            <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(51, 65, 85, 0.8); padding: 8px 10px; border-radius: 12px;">
+              <div style="font-size: 8.5px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">Hazard Radius</div>
+              <div style="font-size: 13px; font-weight: 800; color: #fda4af; margin-top: 2px;">~${event.affectedRadiusKm} km</div>
+            </div>
+          `;
+        }
+
+        let tsunamiHtml = '';
+        if (event.tsunamiAlert) {
+          tsunamiHtml = `
+            <div style="background: rgba(136, 19, 55, 0.75); border: 1px solid rgba(244, 63, 94, 0.8); border-radius: 14px; padding: 10px 12px; margin-top: 10px; display: flex; gap: 8px; align-items: flex-start;">
+              <span style="font-size: 16px;">🌊</span>
+              <div>
+                <div style="font-size: 10.5px; font-weight: 900; color: #fecdd3; text-transform: uppercase; letter-spacing: 0.05em;">Official Tsunami Warning</div>
+                <div style="font-size: 10.5px; color: #ffe4e6; line-height: 1.35; margin-top: 2px;">High ocean energy displacement. Coastal populations seek elevation (&gt;30m) or move 2km inland immediately.</div>
+              </div>
+            </div>
+          `;
+        }
+
+        let descHtml = '';
+        if (event.description) {
+          descHtml = `
+            <div style="margin-top: 10px;">
+              <div style="font-size: 9.5px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+                <span>📝</span><span>Incident Assessment</span>
+              </div>
+              <div style="font-size: 11px; color: #cbd5e1; background: rgba(15, 23, 42, 0.7); padding: 8px 10px; border-radius: 12px; border: 1px solid rgba(51, 65, 85, 0.6); line-height: 1.45;">
+                ${event.description}
+              </div>
+            </div>
+          `;
+        }
+
+        let safetyHtml = '';
+        if (event.safetyAdvice && event.safetyAdvice.length > 0) {
+          safetyHtml = `
+            <div style="margin-top: 10px;">
+              <div style="font-size: 9.5px; font-weight: 800; color: #fb7185; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; display: flex; align-items: center; gap: 4px;">
+                <span>🛡️</span><span>Emergency Action Plan</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 5px;">
+                ${event.safetyAdvice.map(a => `
+                  <div style="font-size: 10.5px; color: #e2e8f0; background: rgba(15, 23, 42, 0.5); padding: 6px 9px; border-radius: 10px; border: 1px solid rgba(51, 65, 85, 0.5); display: flex; gap: 6px; align-items: flex-start;">
+                    <span style="color: #34d399; font-weight: 900;">✓</span>
+                    <span>${a}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        let officialBtnHtml = '';
+        if (event.url) {
+          officialBtnHtml = `
+            <a href="${event.url}" target="_blank" rel="noopener noreferrer" style="flex: 1; text-align: center; text-decoration: none; padding: 7px 10px; background: linear-gradient(135deg, #e11d48, #f43f5e); color: #ffffff; font-size: 10.5px; font-weight: 700; border-radius: 10px; box-shadow: 0 4px 12px rgba(225, 29, 72, 0.35); display: inline-block;">
+              Official Bulletin ↗
+            </a>
+          `;
+        }
+
+        return `
+          <div style="font-family: 'Inter', sans-serif; padding: 12px; background: #0d1322; color: #f8fafc; box-sizing: border-box; position: relative;">
+            <!-- Directional Pointer Arrows (Only active one shown by CSS) -->
+            <div class="callout-arrow callout-arrow-top"></div>
+            <div class="callout-arrow callout-arrow-bottom"></div>
+            <div class="callout-arrow callout-arrow-left"></div>
+            <div class="callout-arrow callout-arrow-right"></div>
+
+            <!-- Top Accent Laser -->
+            <div style="height: 2px; width: 100%; background: linear-gradient(90deg, #f43f5e, #fbbf24, #a855f7); border-radius: 2px; margin-bottom: 8px;"></div>
+
+            <!-- Header Bar -->
+            <div style="display: flex; flex-wrap: wrap; gap: 5px; align-items: center; margin-bottom: 8px; padding-right: 24px;">
+              <span style="${sevBg} font-size: 8.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 7px; border-radius: 9999px;">
+                ${event.severity} SEVERITY
+              </span>
+              <span style="background: rgba(30, 41, 59, 0.9); color: #cbd5e1; font-size: 9px; font-weight: 700; text-transform: uppercase; padding: 2px 7px; border-radius: 9999px; border: 1px solid #334155; display: inline-flex; align-items: center; gap: 3px;">
+                <span>${categoryIcon}</span>
+                <span>${event.category}</span>
+              </span>
+              <span style="background: rgba(88, 28, 135, 0.4); color: #d8b4fe; font-size: 8.5px; font-weight: 700; font-family: monospace; padding: 2px 6px; border-radius: 9999px; border: 1px solid rgba(168, 85, 247, 0.3);">
+                📡 ${event.source || 'GLOBAL SENSORS'}
+              </span>
+            </div>
+
+            <!-- Title -->
+            <div style="font-size: 13.5px; font-weight: 900; color: #ffffff; line-height: 1.3; margin-bottom: 8px; font-family: 'Outfit', sans-serif;">
+              ${event.title}
+            </div>
+
+            <!-- Location & Telemetry Box -->
+            <div style="background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(51, 65, 85, 0.8); border-radius: 12px; padding: 8px 10px; margin-bottom: 8px;">
+              <div style="display: flex; align-items: flex-start; gap: 5px;">
+                <span style="font-size: 12px;">📍</span>
+                <div>
+                  <div style="font-size: 8px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">Epicenter Location</div>
+                  <div style="font-size: 11.5px; font-weight: 700; color: #f1f5f9;">${event.locationName}</div>
+                </div>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(51, 65, 85, 0.6); font-size: 10px; color: #94a3b8;">
+                <div>📅 <strong style="color: #cbd5e1;">${dateStr}</strong></div>
+                <div style="font-family: monospace; font-size: 9.5px; color: #fda4af; background: rgba(2, 6, 23, 0.8); padding: 1px 5px; border-radius: 5px; border: 1px solid #1e293b;">
+                  ${event.latitude.toFixed(4)}°, ${event.longitude.toFixed(4)}°
+                </div>
+              </div>
+            </div>
+
+            ${tsunamiHtml}
+
+            <!-- Telemetry Metrics Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 5px; margin-top: 8px;">
+              ${metricsHtml}
+            </div>
+
+            ${descHtml}
+            ${safetyHtml}
+
+            <!-- Copilot Trigger Card -->
+            <div style="margin-top: 10px; background: linear-gradient(135deg, rgba(88, 28, 135, 0.35), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 12px; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 14px;">🛰️</span>
+                <div>
+                  <div style="font-size: 10.5px; font-weight: 800; color: #e9d5ff;">Terra Sentinel Copilot</div>
+                  <div style="font-size: 9px; color: #c084fc;">Ask AI for emergency checklist</div>
+                </div>
+              </div>
+              <button onclick="window.__askTerraSentinel('${event.id}')" style="background: #9333ea; color: #ffffff; border: none; font-size: 10px; font-weight: 700; padding: 5px 10px; border-radius: 8px; cursor: pointer; box-shadow: 0 2px 8px rgba(147, 51, 234, 0.4);">
+                Ask AI ✨
+              </button>
+            </div>
+
+            <!-- Footer Actions -->
+            <div style="display: flex; gap: 6px; margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(51, 65, 85, 0.6);">
+              <button onclick="window.__shareDisasterAlert('${event.id}')" style="flex: 1; background: #1e293b; color: #e2e8f0; border: 1px solid #334155; font-size: 10.5px; font-weight: 700; padding: 7px 10px; border-radius: 10px; cursor: pointer;">
+                🔗 Share Alert
+              </button>
+              ${officialBtnHtml}
+            </div>
+          </div>
+        `;
       }
 
       const MAP_THEMES = {
@@ -483,6 +1697,7 @@
 
         const [windowWidth, setWindowWidth] = useState(window.innerWidth);
         const [showPhoneSimulator, setShowPhoneSimulator] = useState(false);
+        const [isChatOpen, setIsChatOpen] = useState(false);
 
         useEffect(() => {
           const handleResize = () => setWindowWidth(window.innerWidth);
@@ -527,23 +1742,43 @@
           return events.filter(e => e.severity === 'critical').length;
         }, [events]);
 
-        // Initialize Leaflet Map
+        // Initialize Leaflet Map with Butter-Smooth Rendering & Tile Pre-buffering
         useEffect(() => {
           if (mapContainerRef.current && !mapRef.current) {
             const map = L.map(mapContainerRef.current, {
               zoomControl: false,
-              attributionControl: false
+              attributionControl: false,
+              preferCanvas: true,
+              fadeAnimation: true,
+              zoomAnimation: true,
+              markerZoomAnimation: true,
+              zoomAnimationThreshold: 8,
+              wheelDebounceTime: 40,
+              wheelPxPerZoomLevel: 80,
+              inertia: true,
+              inertiaDeceleration: 3000,
+              inertiaMaxSpeed: 1500
             }).setView([26.2, 92.9], 5);
 
             const themeConfig = MAP_THEMES[activeMapTheme];
             const tileLayer = L.tileLayer(themeConfig.url, {
               maxZoom: 19,
-              subdomains: 'abcd'
+              subdomains: 'abcd',
+              keepBuffer: 12,
+              updateWhenZooming: false,
+              updateWhenIdle: false,
+              updateInterval: 100,
+              crossOrigin: true
             });
 
             if (themeConfig.fallback) {
               tileLayer.on('tileerror', () => {
-                L.tileLayer(themeConfig.fallback, { maxZoom: 19 }).addTo(map);
+                L.tileLayer(themeConfig.fallback, { 
+                  maxZoom: 19,
+                  keepBuffer: 12,
+                  updateWhenZooming: false,
+                  updateWhenIdle: false
+                }).addTo(map);
               });
             }
 
@@ -551,7 +1786,13 @@
             tileLayerRef.current = tileLayer;
 
             if (themeConfig.labelsUrl) {
-              const labelsLayer = L.tileLayer(themeConfig.labelsUrl, { maxZoom: 19 }).addTo(map);
+              const labelsLayer = L.tileLayer(themeConfig.labelsUrl, { 
+                maxZoom: 19,
+                keepBuffer: 12,
+                updateWhenZooming: false,
+                updateWhenIdle: false,
+                crossOrigin: true
+              }).addTo(map);
               labelsLayerRef.current = labelsLayer;
             }
 
@@ -567,7 +1808,7 @@
           return () => clearTimeout(resizeTimer);
         }, [activeTab, isDesktop, showPhoneSimulator]);
 
-        // Switch Map Tile Theme Dynamically
+        // Switch Map Tile Theme Dynamically with Pre-buffering
         useEffect(() => {
           if (mapRef.current) {
             if (tileLayerRef.current) {
@@ -581,12 +1822,22 @@
             const themeConfig = MAP_THEMES[activeMapTheme];
             const newLayer = L.tileLayer(themeConfig.url, {
               maxZoom: 19,
-              subdomains: 'abcd'
+              subdomains: 'abcd',
+              keepBuffer: 12,
+              updateWhenZooming: false,
+              updateWhenIdle: false,
+              updateInterval: 100,
+              crossOrigin: true
             });
 
             if (themeConfig.fallback) {
               newLayer.on('tileerror', () => {
-                L.tileLayer(themeConfig.fallback, { maxZoom: 19 }).addTo(mapRef.current);
+                L.tileLayer(themeConfig.fallback, { 
+                  maxZoom: 19,
+                  keepBuffer: 12,
+                  updateWhenZooming: false,
+                  updateWhenIdle: false
+                }).addTo(mapRef.current);
               });
             }
 
@@ -594,7 +1845,13 @@
             tileLayerRef.current = newLayer;
 
             if (themeConfig.labelsUrl) {
-              const labelsLayer = L.tileLayer(themeConfig.labelsUrl, { maxZoom: 19 }).addTo(mapRef.current);
+              const labelsLayer = L.tileLayer(themeConfig.labelsUrl, { 
+                maxZoom: 19,
+                keepBuffer: 12,
+                updateWhenZooming: false,
+                updateWhenIdle: false,
+                crossOrigin: true
+              }).addTo(mapRef.current);
               labelsLayerRef.current = labelsLayer;
             }
           }
@@ -635,7 +1892,31 @@
             });
 
             const marker = L.marker([ev.latitude, ev.longitude], { icon }).addTo(map);
-            marker.on('click', () => setSelectedEvent(ev));
+            
+            // Register in global event map and markers map
+            window.__allEventsMap.set(ev.id, ev);
+            window.__markersMap.set(ev.id, marker);
+
+            const initialSide = getOptimalSide(map, ev.latitude, ev.longitude);
+            window.__currentCalloutSide.set(ev.id, initialSide);
+            const popupContent = createDisasterCalloutHtml(ev, initialSide);
+
+            marker.bindPopup(popupContent, {
+              className: `disaster-callout-popup pos-${initialSide}`,
+              maxWidth: 400,
+              minWidth: 280,
+              autoPan: true,
+              autoPanPadding: [50, 50],
+              closeButton: true,
+              offset: [0, -10]
+            });
+
+            marker.eventId = ev.id;
+            marker.on('click', () => {
+              const currentSide = getOptimalSide(mapRef.current, ev.latitude, ev.longitude);
+              window.__setCalloutSide(ev.id, currentSide);
+              setSelectedEvent(ev);
+            });
             markersRef.current.push(marker);
 
             if (ev.severity === 'critical' || ev.severity === 'high') {
@@ -654,6 +1935,14 @@
         useEffect(() => {
           if (selectedEvent && mapRef.current) {
             mapRef.current.flyTo([selectedEvent.latitude, selectedEvent.longitude], 7, { duration: 1.2 });
+            const m = markersRef.current.find(mk => mk.eventId === selectedEvent.id);
+            if (m) {
+              setTimeout(() => {
+                const currentSide = getOptimalSide(mapRef.current, selectedEvent.latitude, selectedEvent.longitude);
+                window.__setCalloutSide(selectedEvent.id, currentSide);
+                m.openPopup();
+              }, 400);
+            }
           }
         }, [selectedEvent]);
 
@@ -691,39 +1980,51 @@
         // Mobile Application Render
         const mobileAppUI = (
           <div className="flex flex-col h-full w-full bg-[#0b0f19] text-slate-100 overflow-hidden font-sans relative">
-            <header className="sticky top-0 z-40 bg-[#0b0f19]/95 backdrop-blur-md border-b border-slate-800/80 px-4 pt-2.5 pb-2.5">
+            <header className="sticky top-0 z-40 bg-[#0b0f19]/90 backdrop-blur-xl border-b border-slate-800/80 px-4 pt-3 pb-2.5 shadow-lg">
+              {/* Laser accent line on top */}
+              <div className="absolute top-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-rose-500/70 via-amber-400/40 to-transparent"></div>
+
               <div className="flex items-center justify-between mb-2.5">
-                <div className="flex items-center space-x-2">
-                  <div className="relative">
-                    <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center shadow-md shadow-rose-600/30">
-                      <span className="text-base">🚨</span>
-                    </div>
-                    <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
-                    </span>
-                  </div>
+                <div className="flex items-center space-x-2.5">
+                  <BrandEmblem size="sm" />
                   <div>
-                    <h1 className="text-base font-extrabold text-slate-100 tracking-tight leading-none font-heading">
-                      DISASTER<span className="text-rose-500">WATCH</span>
-                    </h1>
-                    <p className="text-[9px] font-medium text-slate-400 tracking-wider uppercase">Multi-Hazard Telemetry</p>
+                    <div className="flex items-center space-x-1.5">
+                      <h1 className="text-base font-black tracking-tight leading-none font-heading flex items-center">
+                        <span className="bg-gradient-to-b from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
+                          DISASTER
+                        </span>
+                        <span className="ml-1 bg-gradient-to-r from-rose-500 via-red-500 to-amber-400 bg-clip-text text-transparent drop-shadow-[0_0_8px_rgba(244,63,94,0.45)]">
+                          WATCH
+                        </span>
+                      </h1>
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase bg-rose-500/15 border border-rose-500/30 text-rose-400 shadow-[0_0_8px_rgba(244,63,94,0.2)]">
+                        LIVE
+                      </span>
+                    </div>
+                    <p className="text-[9px] font-medium text-slate-400 tracking-wide mt-0.5 flex items-center gap-1">
+                      <span className="text-slate-300 font-semibold">NASA/USGS</span>
+                      <span className="text-slate-600">•</span>
+                      <span>Real-Time Hazard Feed</span>
+                    </p>
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-1.5">
+                <div className="flex items-center space-x-2">
                   {criticalCount > 0 && (
-                    <div className="px-2 py-0.5 rounded-full bg-rose-500/10 border border-rose-500/30 flex items-center space-x-1 animate-pulse">
-                      <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                      <span className="text-[10px] font-bold text-rose-400">{criticalCount} Critical</span>
+                    <div className="px-2.5 py-1 rounded-full bg-gradient-to-r from-rose-950/60 to-rose-900/40 border border-rose-500/40 flex items-center space-x-1.5 shadow-[0_0_10px_rgba(244,63,94,0.2)] animate-pulse">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                      </span>
+                      <span className="text-[10px] font-bold text-rose-300">{criticalCount} Critical</span>
                     </div>
                   )}
                   <button
                     onClick={loadData}
                     disabled={refreshing}
-                    className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 active:scale-95 transition-all border border-slate-700"
+                    className="p-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-300 active:scale-95 transition-all border border-slate-700/80 shadow-sm"
                   >
-                    <span className={refreshing ? 'animate-spin inline-block text-xs' : 'text-xs'}>🔄</span>
+                    <span className={refreshing ? 'animate-spin inline-block text-xs text-rose-400' : 'text-xs'}>🔄</span>
                   </button>
                 </div>
               </div>
@@ -811,7 +2112,10 @@
                       {filteredEvents.map((ev) => (
                         <div
                           key={ev.id}
-                          onClick={() => setSelectedEvent(ev)}
+                          onClick={() => {
+                            setSelectedEvent(ev);
+                            setActiveTab('map');
+                          }}
                           className={`bg-[#151c2e] hover:bg-[#1a233a] border rounded-2xl p-3.5 cursor-pointer transition-all border-slate-800 active:scale-[0.99] ${
                             ev.severity === 'critical' ? 'border-rose-500/40 shadow-lg shadow-rose-500/5' : ''
                           }`}
@@ -932,69 +2236,31 @@
               )}
             </main>
 
-            {selectedEvent && (
-              <div className="absolute inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm p-0">
-                <div className="w-full bg-[#151c2e] border-t border-slate-700 rounded-t-3xl max-h-[85%] overflow-y-auto p-4 space-y-3 shadow-2xl animate-in slide-in-from-bottom">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="flex items-center space-x-1.5 mb-1">
-                        <span className="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-rose-500 text-white">{selectedEvent.severity}</span>
-                        <span className="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-slate-800 text-slate-300">{selectedEvent.category}</span>
-                      </div>
-                      <h2 className="text-sm font-bold text-slate-100">{selectedEvent.title}</h2>
-                    </div>
-                    <button onClick={() => setSelectedEvent(null)} className="p-1 text-slate-400 text-base">✕</button>
-                  </div>
-
-                  <p className="text-xs text-slate-300">📍 {selectedEvent.locationName}</p>
-
-                  <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-slate-400 uppercase">📅 Event Start Date:</span>
-                    <span className="text-xs font-bold text-rose-300">{formatEventDate(selectedEvent.timestamp)}</span>
-                  </div>
-
-                  {selectedEvent.description && (
-                    <p className="text-xs text-slate-300 bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
-                      {selectedEvent.description}
-                    </p>
-                  )}
-
-                  {selectedEvent.tsunamiAlert && (
-                    <div className="bg-rose-500/20 border border-rose-500/40 p-2.5 rounded-xl text-xs text-rose-300 font-bold">
-                      ⚠️ TSUNAMI WARNING ACTIVE: Evacuate coastal regions immediately.
-                    </div>
-                  )}
-
-                  {selectedEvent.safetyAdvice && (
-                    <div className="space-y-1">
-                      <h4 className="text-[10px] font-bold text-slate-400 uppercase">Emergency Action Plan</h4>
-                      {selectedEvent.safetyAdvice.map((a, i) => (
-                        <div key={i} className="text-xs text-slate-300 bg-slate-900/60 p-2 rounded-lg">✓ {a}</div>
-                      ))}
-                    </div>
-                  )}
-
-                  {selectedEvent.url && (
-                    <a href={selectedEvent.url} target="_blank" rel="noopener noreferrer" className="block text-center w-full py-2 bg-rose-500 text-white font-bold text-xs rounded-xl">
-                      Official Bulletin Link ↗
-                    </a>
-                  )}
-                </div>
-              </div>
-            )}
-
-            <nav className="absolute bottom-0 left-0 right-0 z-40 bg-[#0b0f19]/95 border-t border-slate-800 px-3 py-1.5">
+            <nav className="absolute bottom-0 left-0 right-0 z-40 bg-[#0b0f19]/95 backdrop-blur-md border-t border-slate-800 px-3 py-1.5 shadow-2xl">
               <div className="flex justify-around items-center max-w-lg mx-auto">
                 {[
                   { id: 'map', label: 'Live Map', icon: '🗺️' },
                   { id: 'feed', label: 'Incidents', icon: '📋' },
                   { id: 'analytics', label: 'Analytics', icon: '📊' },
                   { id: 'alerts', label: 'Safety', icon: '🚨' },
+                  { id: 'copilot', label: 'Sentinel', icon: '🛰️' },
                 ].map((t) => (
                   <button
                     key={t.id}
-                    onClick={() => setActiveTab(t.id)}
-                    className={`flex flex-col items-center text-[9px] ${activeTab === t.id ? 'text-rose-400 font-bold' : 'text-slate-400'}`}
+                    onClick={() => {
+                      if (t.id === 'copilot') {
+                        setIsChatOpen(true);
+                      } else {
+                        setActiveTab(t.id);
+                      }
+                    }}
+                    className={`flex flex-col items-center text-[9px] transition-all cursor-pointer ${
+                      activeTab === t.id && !isChatOpen
+                        ? 'text-rose-400 font-bold'
+                        : t.id === 'copilot' && isChatOpen
+                        ? 'text-purple-400 font-bold'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
                   >
                     <span className="text-base">{t.icon}</span>
                     <span>{t.label}</span>
@@ -1009,30 +2275,59 @@
         if (isDesktop && !showPhoneSimulator) {
           return (
             <div className="h-screen w-screen flex flex-col bg-[#0b0f19] text-slate-100 overflow-hidden font-sans">
-              <header className="bg-[#0f172a] border-b border-slate-800 px-6 py-3 flex items-center justify-between shrink-0 shadow-md">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center shadow-lg shadow-rose-600/30">
-                    <span className="text-xl">🚨</span>
-                  </div>
+              <header className="relative bg-[#0b0f19]/85 backdrop-blur-xl border-b border-slate-800/80 px-6 py-3.5 flex items-center justify-between shrink-0 shadow-2xl z-30">
+                {/* Laser accent line on top */}
+                <div className="absolute top-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-rose-500/70 via-amber-400/50 to-transparent"></div>
+
+                <div className="flex items-center space-x-3.5">
+                  <BrandEmblem size="lg" />
                   <div>
-                    <h1 className="text-xl font-extrabold text-slate-100 tracking-tight leading-none font-heading">
-                      GLOBAL DISASTER <span className="text-rose-500">WATCH</span>
-                    </h1>
-                    <p className="text-xs font-semibold text-slate-400 mt-0.5">Real-Time Multi-Hazard Telemetry & Emergency Safety Portal</p>
+                    <div className="flex items-center space-x-2.5">
+                      <h1 className="text-xl font-black tracking-tight leading-none font-heading flex items-center">
+                        <span className="bg-gradient-to-b from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
+                          GLOBAL DISASTER
+                        </span>
+                        <span className="ml-2 bg-gradient-to-r from-rose-500 via-red-500 to-amber-400 bg-clip-text text-transparent drop-shadow-[0_0_14px_rgba(244,63,94,0.55)]">
+                          WATCH
+                        </span>
+                      </h1>
+                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-mono font-extrabold uppercase bg-rose-500/15 border border-rose-500/30 text-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.2)]">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+                        LIVE
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-[11px] font-medium text-slate-400 mt-1">
+                      <span className="flex items-center gap-1 text-slate-300 font-semibold">
+                        <span className="text-[10px]">🛰️</span> NASA & USGS SENSORS
+                      </span>
+                      <span className="text-slate-600">•</span>
+                      <span>Real-Time Multi-Hazard Telemetry & Emergency Safety Portal</span>
+                    </div>
                   </div>
                 </div>
 
                 <div className="flex items-center space-x-3">
                   {criticalCount > 0 && (
-                    <div className="px-3.5 py-1.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center space-x-2 animate-pulse">
-                      <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-                      <span className="text-xs font-bold text-rose-400">{criticalCount} Critical Global Threats</span>
+                    <div className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-rose-950/60 to-rose-900/40 border border-rose-500/40 flex items-center space-x-2 shadow-[0_0_15px_rgba(244,63,94,0.15)] animate-pulse">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                      </span>
+                      <span className="text-xs font-bold text-rose-300 tracking-wide">{criticalCount} Critical Global Threats</span>
                     </div>
                   )}
 
                   <button
+                    onClick={() => setIsChatOpen((prev) => !prev)}
+                    className="px-3.5 py-1.5 bg-gradient-to-r from-purple-600/90 via-purple-500/90 to-rose-600/90 hover:from-purple-500 hover:to-rose-500 text-white text-xs font-bold rounded-xl border border-purple-400/40 transition-all flex items-center space-x-1.5 shadow-lg shadow-purple-600/25 active:scale-95 cursor-pointer"
+                  >
+                    <span className="animate-pulse">🛰️</span>
+                    <span>Terra Sentinel</span>
+                  </button>
+
+                  <button
                     onClick={() => setShowPhoneSimulator(true)}
-                    className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 transition-all flex items-center space-x-1.5 shadow-sm"
+                    className="px-3.5 py-1.5 bg-slate-900/80 hover:bg-slate-800 text-slate-200 text-xs font-bold rounded-xl border border-slate-700/80 hover:border-slate-600 transition-all flex items-center space-x-1.5 shadow-sm backdrop-blur-sm active:scale-95 cursor-pointer"
                   >
                     <span>📱</span>
                     <span>Phone View Simulator</span>
@@ -1041,10 +2336,10 @@
                   <button
                     onClick={loadData}
                     disabled={refreshing}
-                    className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 transition-all flex items-center space-x-1.5"
+                    className="px-3.5 py-1.5 bg-gradient-to-r from-slate-900/90 to-slate-800/90 hover:from-slate-800 hover:to-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700/80 hover:border-slate-600 transition-all flex items-center space-x-1.5 shadow-sm backdrop-blur-sm active:scale-95 disabled:opacity-50 cursor-pointer"
                   >
-                    <span className={refreshing ? 'animate-spin' : ''}>🔄</span>
-                    <span>Refresh Data</span>
+                    <span className={refreshing ? 'animate-spin inline-block text-rose-400' : 'text-slate-300'}>🔄</span>
+                    <span>{refreshing ? 'Syncing...' : 'Refresh Data'}</span>
                   </button>
                 </div>
               </header>
@@ -1233,6 +2528,14 @@
                   <div ref={mapContainerRef} className="w-full h-full absolute inset-0 z-0" />
                 </main>
               </div>
+
+              <AegisAIChatbot
+                events={events}
+                criticalCount={criticalCount}
+                isOpen={isChatOpen}
+                setIsOpen={setIsChatOpen}
+                isDesktop={true}
+              />
             </div>
           );
         }
@@ -1246,7 +2549,7 @@
                   <span className="text-xs font-bold text-slate-200">📱 Mobile Phone Simulator Active</span>
                   <button
                     onClick={() => setShowPhoneSimulator(false)}
-                    className="px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs font-bold rounded-lg border border-rose-500/40 transition-all"
+                    className="px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs font-bold rounded-lg border border-rose-500/40 transition-all cursor-pointer"
                   >
                     Back to Desktop Dashboard
                   </button>
@@ -1278,6 +2581,14 @@
                 {mobileAppUI}
               </div>
             )}
+
+            <AegisAIChatbot
+              events={events}
+              criticalCount={criticalCount}
+              isOpen={isChatOpen}
+              setIsOpen={setIsChatOpen}
+              isDesktop={false}
+            />
           </div>
         );
       }

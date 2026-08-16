@@ -1,10 +1,12 @@
 # Workflow State
 
 ## Request
-- Create a mobile version for Global Disaster Watch (`rdron9191/global-disaster-watch`).
+- Integrate Aegis AI Emergency & Disaster Copilot chatbot into Global Disaster Watch.
 
 ## Clarified Scope
-- Develop a cross-platform mobile application (React Native / Expo + React Mobile Web PWA) for Global Disaster Watch.
+- Develop a context-aware AI emergency response assistant (Aegis AI) with live access to current USGS/NASA hazard telemetry.
+- Provide quick disaster safety checklists, evacuation guidelines, 72-hour survival kits, and emergency hotline numbers.
+- Add interactive glassmorphic chat drawer with suggested quick-prompt chips to both Desktop and Mobile views.
 - Integrate real-time APIs: USGS Earthquakes API, NASA EONET (Earth Observatory Natural Event Tracker) API, and Open-Meteo Weather/Disaster API.
 - Provide key mobile features:
   - Interactive Mobile Map View with real-time incident markers & severity styling.
@@ -37,24 +39,34 @@
 - `[NEW]` [APP_STORE_LAUNCH_GUIDE.md](file:///Users/ranodipdutta/Documents/GitHub/Multi-Agent-Setup/global-disaster-watch/APP_STORE_LAUNCH_GUIDE.md)
 
 ## Implementation Notes
-- Upgraded Satellite view to **🛰️ Satellite Hybrid**:
-  - Combined Esri photorealistic satellite imagery base layer with **Esri World Boundaries and Places** reference overlay layer.
-  - Displays country names, international borders, state/province lines, capital cities, and major landmarks clearly over satellite photos.
+- **Automatic Model Routing (Clean UI)**: Removed the manual model toggle bar from the user interface. Terra Sentinel now automatically routes each query to the optimal model under the hood (e.g. DeepSeek V4 reasoning engine for tectonic and geological science, NVIDIA Nemotron 3.5 for tactical action plans, and Terra Telemetry Core for live sensor queries).
+- **Simplified Minimalist Vector Microphone Icon**: Replaced the previous 3D/emoji mic with the clean, minimalist SVG outline microphone vector icon matching the provided screenshot design.
+- **Speech-to-Text Audio Voice Recording**: Integrated a high-performance Web Speech API microphone interface into the chatbot input footer. Users can click the microphone button to record voice audio, which automatically transcribes into text in real-time. Features an active pulsing red recording status indicator (`🔴 Listening... Speak now`) with start/stop/done controls.
 
 ## Review Findings
-- Switching to `🛰️ Satellite Hybrid` now displays clear white text labels and yellow country borders directly over high-res satellite imagery.
+- Replaced emoji mic with sleek minimalist SVG outline icon matching the exact visual spec.
+- Clean chatbot interface without redundant model pills.
+- Voice speech-to-text works seamlessly with real-time transcription into the query input field.
 
 ## Test Results
-- Verified live rendering on `http://192.168.1.10:3000` and `http://localhost:3000`.
+- Verified live server active on `http://localhost:3000` and mobile Wi-Fi `http://192.168.1.12:3000`.
+- Verified live public cloud tunnel: `https://slimy-carpets-refuse.loca.lt` (HTTP 200 OK).
+- Verified previous Vercel deployment: `https://temporary-quick-ochre-05ad14h.vercel.app`.
 
 ## Security Findings
-- No security concerns.
+- Microphone permissions handled securely through standard browser Web Speech APIs. No audio recordings are permanently stored.
 
 ## Lint Results
-- N/A
+- TypeScript & Vite build passing cleanly (0 errors).
 
 ## Commit Message Draft
-- feat(map): add country, state and city reference labels overlay to Satellite Hybrid view
+- feat(ai): add speech-to-text voice recording and seamless auto-model neural routing
+
+## Commit Message Draft
+- feat(ai): add DeepSeek V4 and Nemotron 3.5 LLM engine with Pacific Ring of Fire geological science intelligence
+
+
+
 
 
 

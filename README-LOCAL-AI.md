@@ -202,6 +202,7 @@ Use Serena to find symbols, inspect call sites, and apply structured multi-file 
 **1. Install Ollama and pull models**
 ```bash
 # Install: https://ollama.com
+ollama pull nemotron-3.5-lightning
 ollama pull gemma4:e4b
 ollama pull gemma4:26b
 ollama pull qwen3.6:27b

@@ -7,6 +7,7 @@ import { DisasterFeed } from './components/DisasterFeed';
 import { AnalyticsDashboard } from './components/AnalyticsDashboard';
 import { BottomTabNav, ActiveTab } from './components/BottomTabNav';
 import { EventDetailModal } from './components/EventDetailModal';
+import { AegisAIChatbot } from './components/AegisAIChatbot';
 import { ShieldAlert, BookOpen, PhoneCall } from 'lucide-react';
 
 export function App() {
@@ -18,6 +19,7 @@ export function App() {
   const [selectedSeverity, setSelectedSeverity] = useState<DisasterSeverity | 'all'>('all');
   const [activeTab, setActiveTab] = useState<ActiveTab>('map');
   const [selectedEvent, setSelectedEvent] = useState<DisasterEvent | null>(null);
+  const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
 
   const loadData = async () => {
     setRefreshing(true);
@@ -151,6 +153,14 @@ export function App() {
       <EventDetailModal
         event={selectedEvent}
         onClose={() => setSelectedEvent(null)}
+        onAskCopilot={() => setIsChatOpen(true)}
+      />
+
+      <AegisAIChatbot
+        events={events}
+        criticalCount={criticalCount}
+        isOpen={isChatOpen}
+        setIsOpen={setIsChatOpen}
       />
 
       <BottomTabNav
